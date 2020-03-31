@@ -554,6 +554,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = ownedType.Type == null
                     ? Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
                     : Builder.HasOwnership(ownedType.Type, navigationName, ConfigurationSource.Explicit);
+
+                ThrowIfOwnsManyOnReference(navigationName, relationship);
+
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
             }
 
@@ -561,6 +564,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relationship.Metadata.DeclaringEntityType,
                 relationship);
+        }
+
+        /// <summary>
+        /// Throws if the user is attempting to create an OwnsMany relationship
+        /// using a navigation property which does not represent an enumerable.
+        /// </summary>
+        /// <param name="navigationName"> the name of the navigation </param>
+        /// <param name="foreignKeyBuilder"> the foreign key builder building this relationship </param>
+        /// 
+        protected virtual void ThrowIfOwnsManyOnReference(
+            [NotNull] string navigationName,
+            [NotNull] InternalForeignKeyBuilder foreignKeyBuilder)
+        {
+            Check.NotNull(navigationName, nameof(navigationName));
+            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+
+            var targetEntityTypeClrType = foreignKeyBuilder
+                .Metadata.PrincipalToDependent?.TargetEntityType?.ClrType;
+            if (targetEntityTypeClrType == null)
+            {
+                return;
+            }
+
+            var enumerableOfTargetEntityTypeClrType =
+                typeof(IEnumerable<>).MakeGenericType(targetEntityTypeClrType);
+            var navigationPropertyClrType =
+                foreignKeyBuilder.Metadata.PrincipalToDependent?.ClrType;
+            if (navigationPropertyClrType != null
+                && !enumerableOfTargetEntityTypeClrType.IsAssignableFrom(navigationPropertyClrType))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.UsedOwnsManyOnReference(
+                        navigationName,
+                        Metadata.ClrType.FullName,
+                        targetEntityTypeClrType.FullName));
+            }
         }
 
         /// <summary>

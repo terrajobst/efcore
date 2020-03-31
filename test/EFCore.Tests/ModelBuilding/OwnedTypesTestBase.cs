@@ -1437,6 +1437,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
             }
+
+            [ConditionalFact]
+            public virtual void Attempt_to_create_OwnsMany_on_a_reference_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                Assert.Equal(
+                    CoreStrings.UsedOwnsManyOnReference(
+                        "OwnedDependent",
+                        typeof(OneToOneNavPrincipalOwner).FullName,
+                        typeof(OwnedNavDependent).FullName),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                            .Entity<OneToOneNavPrincipalOwner>()
+                            .OwnsMany<OwnedNavDependent>("OwnedDependent")).Message
+                 );
+            }
         }
     }
 }

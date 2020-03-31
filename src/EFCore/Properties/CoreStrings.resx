@@ -1369,4 +1369,7 @@
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
   </data>
+  <data name="UsedOwnsManyOnReference" xml:space="preserve">
+    <value>Attempt to create an OwnsMany relationship using the navigation property '{navigationName}' on the entity type '{ownerEntityType}' failed because the navigation property exists and does not implement 'IEnumerable&lt;{ownedEntityType}&gt;'</value>
+  </data>
 </root>

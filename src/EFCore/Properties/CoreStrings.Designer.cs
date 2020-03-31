@@ -2596,6 +2596,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("QueryEntityMaterializationConditionWrongShape", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     Attempt to create an OwnsMany relationship using the navigation property '{navigationName}' on the entity type '{ownerEntityType}' failed because the navigation property exists and does not implement 'IEnumerable&lt;{ownedEntityType}&gt;'
+        /// </summary>
+        public static string UsedOwnsManyOnReference([CanBeNull] object navigationName, [CanBeNull] object ownerEntityType, [CanBeNull] object ownedEntityType)
+            => string.Format(
+                GetString("UsedOwnsManyOnReference", nameof(navigationName), nameof(ownerEntityType), nameof(ownedEntityType)),
+                navigationName, ownerEntityType, ownedEntityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

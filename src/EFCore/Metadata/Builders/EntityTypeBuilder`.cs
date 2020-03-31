@@ -494,6 +494,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = navigation.MemberInfo == null
                     ? Builder.HasOwnership(typeof(TRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
                     : Builder.HasOwnership(typeof(TRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
+
+                ThrowIfOwnsManyOnReference(navigation.Name, relationship);
+
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
